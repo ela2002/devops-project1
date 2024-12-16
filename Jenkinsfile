@@ -1,8 +1,11 @@
 pipeline {
     agent any
-
+    tools{
+        nodejs 'NodeJS'
+    }
     environment {
         DOCKER_IMAGE_NAME = 'elareb/mon-api'
+        DOCKER_HUB_CREDENTIALS_ID = 'dockerhub-credentials'
         GIT_REPO = 'https://github.com/ela2002/devops-project1.git'
     }
 
@@ -12,23 +15,29 @@ pipeline {
                 git branch: 'main', credentialsId: 'github-credentials', url: 'https://github.com/ela2002/devops-project1.git/'
             }
         }
+        stage('Install node dependencies') {
+            steps {
+                
+            }
+        }
         
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %DOCKER_IMAGE_NAME% .'
-            }
+				script {
+					dockerImage = docker.build("${DOCKER_IMAGE_NAME}:latest")
+				}
+			}
         }
         
-        stage('Push Docker Image to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    bat '''
-                        echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin
-                        docker push %DOCKER_IMAGE_NAME%
-                    '''
-                }
-            }
-        }
+        stage('Push Docker Image to DockerHub'){
+			steps {
+				script {
+					docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDENTIALS_ID}"){
+						dockerImage.push('latest')
+					}
+				}
+			}
+		}
         
         stage('Push Code to GitHub') {
             steps {
