@@ -4,8 +4,9 @@ pipeline {
         nodejs 'NodeJS'
     }
     environment {
-        DOCKER_IMAGE_NAME = 'elareb/mon-api'
-        DOCKER_HUB_CREDENTIALS_ID = 'dockerhub-credentials'
+        DOCKER_HUB_REPO = 'elareb/mon-api'
+        DOCKER_REGISTRY= 'https://hub.docker.com/repositories/elareb'
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials'
         GIT_REPO = 'https://github.com/ela2002/devops-project1.git'
     }
 
@@ -24,7 +25,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
 				script {
-					dockerImage = docker.build("${DOCKER_IMAGE_NAME}:latest")
+					dockerImage = docker.build("${DOCKER_HUB_REPO}:latest")
 				}
 			}
         }
@@ -32,7 +33,7 @@ pipeline {
         stage('Push Docker Image to DockerHub'){
 			steps {
 				script {
-					docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDENTIALS_ID}"){
+					docker.withRegistry('https://registry.hub.docker.com', "${DOCKERHUB_CREDENTIALS_ID}"){
 						dockerImage.push('latest')
 					}
 				}
