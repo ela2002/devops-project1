@@ -44,7 +44,7 @@ pipeline {
         script {
             bat "docker pull ${DOCKER_HUB_REPO}:latest"
             
-            bat "docker run -d -p 8080:8080 ${DOCKER_HUB_REPO}:latest"
+            bat "docker run -d -p 8082:8080 ${DOCKER_HUB_REPO}:latest"
         }
     }
 }
