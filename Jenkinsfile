@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_NAME = 'elareb/mon-api2'
+        DOCKER_IMAGE_NAME = 'elareb/mon-api:0.1'
         GIT_REPO = 'https://github.com/ela2002/devops-project1.git'
     }
 
