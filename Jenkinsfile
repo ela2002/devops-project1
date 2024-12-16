@@ -39,12 +39,12 @@ pipeline {
 				}
 			}
 		}
-        stage('Deploy Docker Container') {
+       stage('Deploy Docker Container') {
     steps {
         script {
-            docker.pull("${DOCKER_HUB_REPO}:latest")
+            bat "docker pull ${DOCKER_HUB_REPO}:latest"
             
-            docker.image("${DOCKER_HUB_REPO}:latest").run("-p 8080:8080")
+            bat "docker run -d -p 8080:8080 ${DOCKER_HUB_REPO}:latest"
         }
     }
 }
