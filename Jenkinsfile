@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_NAME = 'elareb/mon-api:0.1'
+        DOCKER_IMAGE_NAME = 'elareb/mon-api'
         GIT_REPO = 'https://github.com/ela2002/devops-project1.git'
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                git credentialsId: 'github-credentials', branch: 'main', url: "${GIT_REPO}"  // Assurez-vous que la branche est correcte
+                git branch: 'main', credentialsId: 'github-credentials', url: 'https://github.com/ela2002/devops-project1.git/'
             }
         }
         
