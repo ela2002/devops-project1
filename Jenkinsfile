@@ -39,18 +39,29 @@ pipeline {
 				}
 			}
 		}
-        
-        stage('Push Code to GitHub') {
-            steps {
-                bat '''
-                    git config --global user.name "Jenkins Bot"
-                    git config --global user.email "jenkins@example.com"
-                    git add .
-                    git commit -m "Mise à jour après build Docker"
-                    git push origin main
-                '''
-            }
+        stage('Deploy Docker Container') {
+    steps {
+        script {
+            docker.pull("${DOCKER_HUB_REPO}:latest")
+            
+            docker.image("${DOCKER_HUB_REPO}:latest").run("-p 8080:8080")
         }
+    }
+}
+        stage('Push Code to GitHub') {
+    steps {
+        withCredentials([string(credentialsId: 'github-credentials', variable: 'GITHUB_TOKEN')]) {
+            bat """
+                git config --global user.name "Jenkins Bot"
+                git config --global user.email "elarebai@example.com"
+                git add .
+                git diff --exit-code || git commit -m "Mise à jour après build Docker"
+                git push https://$GITHUB_TOKEN@github.com/ela2002/devops-project1.git
+            """
+        }
+    }
+}
+
     }
 
     post {
