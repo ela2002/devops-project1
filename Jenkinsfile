@@ -9,44 +9,36 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                // Clone the GitHub repository
-                git credentialsId: 'github-credentials', url: "${GIT_REPO}"
+                git credentialsId: 'github-credentials', branch: 'main', url: "${GIT_REPO}"  // Assurez-vous que la branche est correcte
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Build Docker image
-                    sh 'docker build -t ${DOCKER_IMAGE_NAME} .'
-                }
+                bat 'docker build -t %DOCKER_IMAGE_NAME% .'
             }
         }
         
         stage('Push Docker Image to Docker Hub') {
             steps {
-                script {
-                    // Push the Docker image to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                        sh 'docker push ${DOCKER_IMAGE_NAME}'
-                    }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    bat '''
+                        echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin
+                        docker push %DOCKER_IMAGE_NAME%
+                    '''
                 }
             }
         }
         
         stage('Push Code to GitHub') {
             steps {
-                script {
-                    // Commit and push changes to GitHub
-                    sh '''
-                        git config --global user.name "Jenkins Bot"
-                        git config --global user.email "jenkins@example.com"
-                        git add .
-                        git commit -m "Mise à jour après build Docker"
-                        git push origin main
-                    '''
-                }
+                bat '''
+                    git config --global user.name "Jenkins Bot"
+                    git config --global user.email "jenkins@example.com"
+                    git add .
+                    git commit -m "Mise à jour après build Docker"
+                    git push origin main
+                '''
             }
         }
     }
